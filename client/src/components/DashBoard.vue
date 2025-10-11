@@ -9,7 +9,7 @@
 
                     <div class="card-body text-center">
                         <h5 class="card-title">Total Waste</h5>
-                        <p class="card-text fw-bold text-dark display-6">{{(totalWeight/1000).toFixed(1)}} Kg</p>
+                        <p class="card-text fw-bold text-dark display-6">{{ (totalWeight / 1000).toFixed(1) }} Kg</p>
                     </div>
                 </div>
             </div>
@@ -17,7 +17,7 @@
                 <div class="card bg-light mb-3">
                     <div class="card-body text-center">
                         <h5 class="card-title">Average Waste Per</h5>
-                        <p class="card-text fw-bold text-dark display-6">{{perAvgWaste}} g</p>
+                        <p class="card-text fw-bold text-dark display-6">{{ perAvgWaste }} g</p>
                     </div>
                 </div>
             </div>
@@ -25,7 +25,7 @@
                 <div class="card bg-light mb-3">
                     <div class="card-body text-center">
                         <h5 class="card-title">Top Contributor</h5>
-                        <p class="card-text fw-bold text-dark display-6">{{TopContributer}}</p>
+                        <p class="card-text fw-bold text-dark display-6">{{ TopContributer }}</p>
                     </div>
                 </div>
             </div>
@@ -42,7 +42,8 @@
                         </div>
 
                         <!-- View Devices Button -->
-                        <button class="btn btn-sm btn-outline-secondary w-100" @click="ViewDevices">View Devices</button>
+                        <button class="btn btn-sm btn-outline-secondary w-100" @click="ViewDevices">View
+                            Devices</button>
                     </div>
                 </div>
             </div>
@@ -54,7 +55,7 @@
             <div class="col-8">
                 <div class="card bg-light mb-3">
 
-                    <div class="card-body text-center">
+                    <div class="card-body text-cente large-card">
                         <h5 class="card-title">Trend Overtime</h5>
                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of
                             the card's content.</p>
@@ -62,11 +63,10 @@
                 </div>
             </div>
             <div class="col-4">
-                <div class="card bg-light mb-3">
+                <div class="card bg-light mb-3 large-card">
                     <div class="card-body text-center">
                         <h5 class="card-title">Category Breakdown</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
-                            the card's content.</p>
+                        <canvas id="pieChart" class="pie-chart"></canvas>
                     </div>
                 </div>
             </div>
@@ -88,8 +88,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                         <tr v-for="(entry, index) in Entries" :key="index">
-                            <th scope="row">{{ index + 1 }}</th>  <!-- Auto increment row number -->
+                        <tr v-for="(entry, index) in Entries" :key="index">
+                            <th scope="row">{{ index + 1 }}</th> <!-- Auto increment row number -->
                             <td scope="row">{{ entry.timestamp }}</td>
                             <td class="text-end">{{ entry.meatWeight }}</td>
                             <td class="text-end">{{ entry.vegWeight }}</td>
@@ -111,6 +111,15 @@
 import { ref, onMounted, onBeforeMount } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import {
+  Chart,
+  ArcElement,
+  Tooltip,
+  Legend,
+  PieController
+} from 'chart.js'
+
+Chart.register(ArcElement, Tooltip, Legend, PieController)
 const router = useRouter()
 const user = ref(null)
 const Entries = ref([]);
@@ -125,7 +134,7 @@ let StatusOkDeviceCount = ref(0);
 
 
 
-const ViewDevices = async()=>{
+const ViewDevices = async () => {
     router.push("/Devices");
 }
 const getProfile = async () => {
@@ -144,8 +153,8 @@ const getProfile = async () => {
     }
 }
 
-const getAllEntries = async()=>{
-     try {
+const getAllEntries = async () => {
+    try {
         const res = await axios.get('http://localhost:3000/api/getAllEntries')
         Entries.value = res.data
     } catch (err) {
@@ -154,52 +163,93 @@ const getAllEntries = async()=>{
 }
 
 
-const getStatusOKDevices = async()=>{
+const getStatusOKDevices = async () => {
     try {
         const res = await axios.get('http://localhost:3000/api/getDevices')
         Devices.value = res.data
-        Devices.value.forEach(device=>{
-            if(device.status==="ok"){
+        Devices.value.forEach(device => {
+            if (device.status === "ok") {
                 StatusOkDeviceCount++;
             }
         })
         console.error(err)
-    }catch(err){
+    } catch (err) {
         console.log(err);
     }
 }
 
-const ComputeDashBoardData = async()=>{
+
+const insertPieChart = async () => {
+    const ctx = document.getElementById('pieChart')
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Meat', 'Veg', 'Carbs'],
+            datasets: [{
+                label: 'Food Waste (g)',
+                data: [totalMeat, totalVeg, totalCarbs], // you can replace this with your real values
+                backgroundColor: [
+                    'rgba(135, 206, 250, 0.7)',  // Light blue
+                    'rgba(65, 105, 225, 0.7)',   // Medium blue
+                    'rgba(0, 0, 128, 0.7)'       // Dark blue
+                ]
+                ,
+                borderColor: [
+                    'rgba(135, 206, 250, 0.7)',  // Light blue
+                    'rgba(65, 105, 225, 0.7)',   // Medium blue
+                    'rgba(0, 0, 128, 0.7)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                   display:false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.label}: ${context.formattedValue} g`
+                        }
+                    }
+                }
+            }
+        }
+    })
+}
+
+const ComputeDashBoardData = async () => {
     //loop through the Entries and store the computed data into respective predefined variables
-   Entries.value.forEach(entry => {
+    Entries.value.forEach(entry => {
         totalMeat.value += entry.meatWeight;  // Update reactive totalMeat
         totalVeg.value += entry.vegWeight;    // Update reactive totalVeg
         totalCarbs.value += entry.carbWeight; // Update reactive totalCarbs
         totalWeight.value += entry.totalWeight
-   });
-   //find the average waste per person
-   perAvgWaste = Math.round(totalWeight.value / Entries.value.length); // nearest whole number
+    });
+    //find the average waste per person
+    perAvgWaste = Math.round(totalWeight.value / Entries.value.length); // nearest whole number
 
-   console.log(perAvgWaste)
+    console.log(perAvgWaste)
 
     //Here we derive which food component is the most amount recorded
     let highestFoodWaste = Math.max(totalMeat, totalVeg, totalCarbs);
 
     if (highestFoodWaste === totalMeat) {
         TopContributer.value = "MEAT"
-    }else if (highestFoodWaste === totalVeg){
+    } else if (highestFoodWaste === totalVeg) {
         TopContributer.value = "VEGE"
-    }else{
-         TopContributer.value = "CARBS"
+    } else {
+        TopContributer.value = "CARBS"
     }
-
-
 }
 
-onMounted(async()=>{
+onMounted(async () => {
     await getAllEntries();
     await ComputeDashBoardData()
     await getStatusOKDevices();
+    await insertPieChart();
 })
 
 onBeforeMount(async () => {
@@ -211,7 +261,10 @@ onBeforeMount(async () => {
 
 <style>
 .card {
-    height: 130px;
+    height: 120px;
+}
+.large-card {
+  height: 260px !important; /* or whatever height you prefer */
 }
 
 .table-wrap {
@@ -234,10 +287,11 @@ onBeforeMount(async () => {
     background: #f8f9fa;
 }
 
-    .green-circle {
+.green-circle {
     width: 40px;
     height: 40px;
-    background-color: #28a745;  /* Green color */
+    background-color: #28a745;
+    /* Green color */
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -246,5 +300,13 @@ onBeforeMount(async () => {
     font-weight: bold;
     color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+}
+
+
+.pie-chart {
+  width: 200px !important;
+  height: 200px !important;
+  margin: 0 auto; /* centers it horizontally */
+}
+
 </style>
