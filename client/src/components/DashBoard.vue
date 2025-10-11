@@ -1,7 +1,8 @@
 <template>
-    <h4 class="text-center fst-italic mt-2 mb-4">
+    <h4 class="welcome-text text-center fst-italic mt-2 mb-4">
         Welcome back, {{ user.username }}
     </h4>
+
     <div class="container">
         <div class="row">
             <div class="col">
@@ -53,12 +54,13 @@
     <div class="container">
         <div class="row">
             <div class="col-8">
-                <div class="card bg-light mb-3">
+                <div class="card bg-light mb-3 large-card">
 
-                    <div class="card-body text-cente large-card">
+                    <div class="card-body text-cente ">
                         <h5 class="card-title">Trend Overtime</h5>
-                        <p class="card-text">Some quick example text to build on the card title and make up the bulk of
-                            the card's content.</p>
+                           <div class="chart-container">
+    <canvas id="trendChart"></canvas>
+  </div>
                     </div>
                 </div>
             </div>
@@ -116,9 +118,17 @@ import {
   ArcElement,
   Tooltip,
   Legend,
-  PieController
+  PieController,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  CategoryScale,
 } from 'chart.js'
 
+// for line chart
+Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend)
+//for bar chart
 Chart.register(ArcElement, Tooltip, Legend, PieController)
 const router = useRouter()
 const user = ref(null)
@@ -218,7 +228,62 @@ const insertPieChart = async () => {
             }
         }
     })
-}
+};
+
+const insertTrendChart = async () => {
+  const ctx = document.getElementById('trendChart');
+
+  // ✅ Prepare labels (time) and data (total waste)
+  const labels = Entries.value.map(entry =>
+    new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  );
+
+  const data = Entries.value.map(entry => entry.totalWeight);
+
+  // ✅ Create the chart
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Total Waste (g)',
+        data,
+        borderColor: 'rgba(30, 144, 255, 0.9)',     // line color
+        backgroundColor: 'rgba(30, 144, 255, 0.3)', // area fill
+        fill: true,
+        tension: 0.3,                               // smooth curve
+        pointRadius: 4,
+        pointBackgroundColor: 'rgba(30, 144, 255, 1)',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false // hide the legend if you don’t need it
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.parsed.y} g`
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Time' },
+          grid: { display: false }
+        },
+        y: {
+          title: { display: true, text: 'Total Waste (g)' },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+};
+
 
 const ComputeDashBoardData = async () => {
     //loop through the Entries and store the computed data into respective predefined variables
@@ -250,6 +315,7 @@ onMounted(async () => {
     await ComputeDashBoardData()
     await getStatusOKDevices();
     await insertPieChart();
+    await insertTrendChart();
 })
 
 onBeforeMount(async () => {
@@ -261,7 +327,7 @@ onBeforeMount(async () => {
 
 <style>
 .card {
-    height: 120px;
+height: 120px;
 }
 .large-card {
   height: 260px !important; /* or whatever height you prefer */
@@ -308,5 +374,30 @@ onBeforeMount(async () => {
   height: 200px !important;
   margin: 0 auto; /* centers it horizontally */
 }
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 220px;        /* Adjust for your card */
+  overflow: hidden;     /* Prevent overflow */
+}
+
+#trendChart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.welcome-text {
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
 </style>
