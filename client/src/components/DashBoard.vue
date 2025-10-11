@@ -8,8 +8,8 @@
                 <div class="card bg-light mb-3">
 
                     <div class="card-body text-center">
-                        <h5 class="card-title">Total Waste Today</h5>
-                        <p class="card-text fw-bold text-dark display-6">245 Kg</p>
+                        <h5 class="card-title">Total Waste</h5>
+                        <p class="card-text fw-bold text-dark display-6">{{(totalWeight/1000).toFixed(1)}} Kg</p>
                     </div>
                 </div>
             </div>
@@ -17,7 +17,7 @@
                 <div class="card bg-light mb-3">
                     <div class="card-body text-center">
                         <h5 class="card-title">Average Waste Per</h5>
-                        <p class="card-text fw-bold text-dark display-6">220 g</p>
+                        <p class="card-text fw-bold text-dark display-6">{{perAvgWaste}} g</p>
                     </div>
                 </div>
             </div>
@@ -25,7 +25,7 @@
                 <div class="card bg-light mb-3">
                     <div class="card-body text-center">
                         <h5 class="card-title">Top Contributor</h5>
-                        <p class="card-text fw-bold text-dark display-6">Meat</p>
+                        <p class="card-text fw-bold text-dark display-6">{{TopContributer}}</p>
                     </div>
                 </div>
             </div>
@@ -117,6 +117,9 @@ const Entries = ref([]);
 let totalMeat = ref(0);
 let totalVeg = ref(0);
 let totalCarbs = ref(0);
+let totalWeight = ref(0);
+let TopContributer = ref();
+let perAvgWaste = ref();
 
 
 
@@ -155,18 +158,34 @@ const ComputeDashBoardData = async()=>{
         totalMeat.value += entry.meatWeight;  // Update reactive totalMeat
         totalVeg.value += entry.vegWeight;    // Update reactive totalVeg
         totalCarbs.value += entry.carbWeight; // Update reactive totalCarbs
-    });
-    console.log("HERE are the breakdown")
-    console.log(totalMeat.value,totalCarbs.value,totalVeg.value)
+        totalWeight.value += entry.totalWeight
+   });
+   //find the average waste per person
+   perAvgWaste = Math.round(totalWeight.value / Entries.value.length); // nearest whole number
+
+   console.log(perAvgWaste)
+
+    //Here we derive which food component is the most amount recorded
+    let highestFoodWaste = Math.max(totalMeat, totalVeg, totalCarbs);
+
+    if (highestFoodWaste === totalMeat) {
+        TopContributer.value = "MEAT"
+    }else if (highestFoodWaste === totalVeg){
+        TopContributer.value = "VEGE"
+    }else{
+         TopContributer.value = "CARBS"
+    }
+
+
 }
 
-
-
+onMounted(async()=>{
+    await getAllEntries();
+    await ComputeDashBoardData()
+})
 
 onBeforeMount(async () => {
     await getProfile();
-    await getAllEntries();
-    await ComputeDashBoardData()
 });
 
 
