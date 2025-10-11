@@ -5,12 +5,14 @@
             <h2 class="text-bold">DEVICES</h2>
             <ul>
                 <!-- Device list -->
-                <li v-for="device in devices" :key="device.id">
+                <li v-for="device in devices" :key="device.id" @click="ClickSpecificDevice(device.postalCode)">
                     <div>
                         <strong>{{ device.deviceName }}</strong>
                         <span
                             :class="['status-circle', device.status === 'ok' ? 'status-ok' : 'status-offline']"></span><br>
+                        <strong>Postal:</strong> {{ device.postalCode }}<br>
                         <strong>Last Seen:</strong> {{ new Date(device.lastSeen).toLocaleString() }}<br>
+                  
                     </div>
                 </li>
             </ul>
@@ -25,120 +27,216 @@
 </template>
 
 <script setup>
-import maplibre, { NavigationControl } from 'maplibre-gl'; // Import NavigationControl
+import maplibre, { NavigationControl } from 'maplibre-gl';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { nextTick } from 'vue';
 
 const router = useRouter();
-const mapContainer = ref(null); // Create a reference to the map container
-const devices = ref([]); // Array to store device data
-let map = null; // Declare a variable to hold the map instance
+const mapContainer = ref(null);
+const devices = ref([]);
+let map = null;
 
 // Fetch device data from the API
 const GetDevicesData = async () => {
     try {
         const res = await axios.get('http://localhost:3000/api/getDevices');
-        devices.value = res.data; // Populate devices array with API response
-        console.log(devices.value); // Log the device data to check
+        devices.value = res.data;
+        console.log('📱 Devices data:', devices.value);
+        return devices.value;
     } catch (error) {
         console.error('Error fetching devices:', error);
+        return [];
     }
 };
 
-// Function for the back button
+
+
+
+const ClickSpecificDevice = async (postalCode) => {
+    const latLng = await getLatLngFromPostal(postalCode);
+    if (latLng) {
+        map.flyTo({
+            center: [latLng.longitude, latLng.latitude],
+            zoom: 16,  // Set the zoom level for a closer view
+            duration: 2000,  // Smooth animation duration in milliseconds
+            essential: true  // Ensure that this flight is part of the map's essential flow
+        });
+    } else {
+        console.error('❌ Coordinates not found for postal code:', postalCode);
+    }
+};
+
+
+
 const clickBack = () => {
-    console.log('Back button clicked');
     router.push("/DashBoard");
 };
 
 // Get the latitude and longitude based on postal code
 const getLatLngFromPostal = async (postalCode) => {
+
+
     try {
+        console.log(`📍 Fetching coordinates for postal code: ${postalCode}`);
+        
         const response = await axios.get(
             `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${postalCode}&returnGeom=Y&getAddrDetails=Y`
         );
-        console.log("HITTTTTTTTONEMAPs");
-        console.log(response);
-
-        // Return the latitude and longitude of the first result
+        
         if (response.data && response.data.results && response.data.results.length > 0) {
             const result = response.data.results[0];
-            return {
-                latitude: parseFloat(result.LATITUDE),
-                longitude: parseFloat(result.LONGITUDE),
-            };
-        } else {
-            throw new Error('No results found for postal code');
+            console.log(`📄 OneMap result for ${postalCode}:`, result);
+            
+            const latitude = parseFloat(result.LATITUDE);
+            const longitude = parseFloat(result.LONGITUDE);
+            
+            if (!isNaN(latitude) && !isNaN(longitude)) {
+                console.log(`✅ Coordinates found: ${latitude}, ${longitude}`);
+                return { latitude, longitude };
+            }
         }
+        
+        console.warn(`❌ No coordinates found for postal code: ${postalCode}`);
+        return null;
     } catch (error) {
         console.error('Error fetching lat/lng:', error);
         return null;
     }
 };
 
-// Fetch device data and initialize the map once the data is available
-onMounted(async () => {
-    await GetDevicesData(); // Ensure devices data is fetched first
-    await initMap(); // Initialize the map after devices data is loaded
-    await plotDeviceMarkers(); // Plot markers after data is available
-});
+// Initialize map
+const initMap = () => {
+    return new Promise((resolve) => {
+        console.log('🗺️ Initializing map...');
+        console.log('📦 Map container:', mapContainer.value);
+        
+        if (!mapContainer.value) {
+            console.error('❌ Map container is null!');
+            return;
+        }
 
-// Function to initialize the map
-const initMap = async () => {
-    // Initialize the map and assign it to the global 'map' variable
-    map = new maplibre.Map({
-        container: mapContainer.value,
-        style: 'http://localhost:8080/styles/basic-preview/style.json', // URL to the style JSON
-        center: [103.8198, 1.3521], // Singapore central coordinates
-        zoom: 15,
-    });
-
-    map.addControl(new NavigationControl(), 'top-right');
-
-    map.on('load', () => {
-        map.resize();
-        // Ensure mapContainer.value is available
-        nextTick(() => {
-            if (mapContainer.value) {
-                mapContainer.value.classList.add('ready');
-            }
+        map = new maplibre.Map({
+            container: mapContainer.value,
+            style: 'http://localhost:8080/styles/basic-preview/style.json',
+            center: [103.8198, 1.3521],
+            zoom: 11,
         });
+
+        map.addControl(new NavigationControl(), 'top-right');
+
+        // Wait for map to load completely
+        map.on('load', () => {
+            console.log('✅ Map loaded successfully');
+            map.resize();
+            resolve();
+        });
+
+        map.on('error', (e) => {
+            console.error('❌ Map error:', e);
+        });
+
+        // Set Singapore bounds
+        const singaporeBounds = [
+            [103.6, 1.22],
+            [104.05, 1.48],
+        ];
+        map.fitBounds(singaporeBounds);
     });
-
-    const singaporeBounds = [
-        [103.6, 1.22],
-        [104.05, 1.48],
-    ];
-
-    map.fitBounds(singaporeBounds);
 };
 
-// Function to plot markers for each device
+// Function to plot markers
 const plotDeviceMarkers = async () => {
-    // Ensure the map is initialized before plotting
-    if (!map) {
-        console.error('Map is not initialized');
-        return;
-    }
+    if (!map) return;
 
-    // Loop through devices and fetch their lat/lng based on the postal code
+    const features = [];
+
     for (const device of devices.value) {
         const latLng = await getLatLngFromPostal(device.postalCode);
-        console.log("INSIDE PLOT");
-        console.log(latLng);
+        if (latLng) {
+            // Determine color based on device status
+            let markerColor = '#FF0000'; // Default to red (offline)
+            if (device.status === 'ok') {
+                markerColor =   '#198754' ;  // Green for 'ok' (active)
+            } else if (device.status === 'offline') {
+                markerColor = '#FF0000';  // Red for 'offline'
+            } else {
+                markerColor = '#FFFF00';  // Yellow for any other status (e.g., 'warning', 'error', etc.)
+            }
 
-        // Ensure latLng is valid before creating the marker
-        
-            // Create a marker for each device
-            new maplibre.Marker()
-                .setLngLat([latLng.longitude, latLng.latitude])
-                .setPopup(new maplibre.Popup().setHTML(`<strong>${device.deviceName}</strong>`))
-                .addTo(map);
-        
+            features.push({
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [Number(latLng.longitude), Number(latLng.latitude)],
+                },
+                properties: {
+                    title: device.deviceName,
+                    status: device.status,
+                },
+            });
+
+            // Add source and layer to map
+            if (!map.getSource('devices')) {
+                map.addSource('devices', {
+                    type: 'geojson',
+                    data: {
+                        type: 'FeatureCollection',
+                        features: features,
+                    },
+                });
+
+                map.addLayer({
+                    id: 'devices',
+                    type: 'circle',
+                    source: 'devices',
+                    paint: {
+                        'circle-radius': 8,
+                        'circle-color': markerColor,  // Dynamic color based on status
+                        'circle-stroke-width': 2,
+                        'circle-stroke-color': '#FFFFFF',
+                    },
+                });
+            } else {
+                map.getSource('devices').setData({
+                    type: 'FeatureCollection',
+                    features: features,
+                });
+            }
+        }
     }
 };
+// Main initialization
+onMounted(async () => {
+    console.log('🚀 Component mounted');
+    
+    try {
+        // Step 1: Wait for DOM to be fully rendered
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Step 2: Fetch devices
+        const devicesData = await GetDevicesData();
+        
+        if (devicesData.length === 0) {
+            console.error('❌ No devices found!');
+            return;
+        }
+
+        // Step 3: Initialize map
+        await initMap();
+        
+        // Step 4: Wait a bit more for map to be fully ready
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Step 5: Plot markers
+        await plotDeviceMarkers();
+        
+    } catch (error) {
+        console.error('💥 Initialization error:', error);
+    }
+
+     
+});
 </script>
 
 <style scoped>
@@ -155,6 +253,7 @@ const plotDeviceMarkers = async () => {
     left: 0;
     right: 0;
     bottom: 0;
+    z-index: 1; /* Ensure map has proper z-index */
 }
 
 .side-panel {
@@ -234,4 +333,7 @@ const plotDeviceMarkers = async () => {
     background-color: red;
     /* Red circle when status is not 'ok' */
 }
+
+
+
 </style>
