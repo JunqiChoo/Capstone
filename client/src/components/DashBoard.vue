@@ -114,12 +114,14 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const user = ref(null)
 const Entries = ref([]);
+const Devices = ref([]);
 let totalMeat = ref(0);
 let totalVeg = ref(0);
 let totalCarbs = ref(0);
 let totalWeight = ref(0);
 let TopContributer = ref();
 let perAvgWaste = ref();
+let StatusOkDeviceCount = ref(0);
 
 
 
@@ -152,6 +154,21 @@ const getAllEntries = async()=>{
 }
 
 
+const getStatusOKDevices = async()=>{
+    try {
+        const res = await axios.get('http://localhost:3000/api/getDevices')
+        Devices.value = res.data
+        Devices.value.forEach(device=>{
+            if(device.status==="ok"){
+                StatusOkDeviceCount++;
+            }
+        })
+        console.error(err)
+    }catch(err){
+        console.log(err);
+    }
+}
+
 const ComputeDashBoardData = async()=>{
     //loop through the Entries and store the computed data into respective predefined variables
    Entries.value.forEach(entry => {
@@ -182,6 +199,7 @@ const ComputeDashBoardData = async()=>{
 onMounted(async()=>{
     await getAllEntries();
     await ComputeDashBoardData()
+    await getStatusOKDevices();
 })
 
 onBeforeMount(async () => {
@@ -190,7 +208,6 @@ onBeforeMount(async () => {
 
 
 </script>
-
 
 <style>
 .card {
@@ -225,7 +242,7 @@ onBeforeMount(async () => {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 16px;
+    font-size: 25px;
     font-weight: bold;
     color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
