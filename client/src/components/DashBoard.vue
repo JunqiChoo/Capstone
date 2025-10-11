@@ -79,6 +79,7 @@
                 <table class="table table-hover table-sticky mb-0">
                     <thead>
                         <tr>
+                            <th>No.</th>
                             <th>Entry Logs</th>
                             <th class="text-end">Meat(g)</th>
                             <th class="text-end">Veg(g)</th>
@@ -87,91 +88,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
+                         <tr v-for="(entry, index) in Entries" :key="index">
+                            <th scope="row">{{ index + 1 }}</th>  <!-- Auto increment row number -->
+                            <td scope="row">{{ entry.timestamp }}</td>
+                            <td class="text-end">{{ entry.meatWeight }}</td>
+                            <td class="text-end">{{ entry.vegWeight }}</td>
+                            <td class="text-end">{{ entry.carbWeight }}</td>
+                            <td class="text-end">{{ entry.totalWeight }}</td>
                         </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">4</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">5</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">6</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">7</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">8</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">9</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">10</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">11</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">12</th>
-                            <td class="text-end">120</td>
-                            <td class="text-end">60</td>
-                            <td class="text-end">90</td>
-                            <td class="text-end">270</td>
-                        </tr>
-
                     </tbody>
                 </table>
             </div>
@@ -189,6 +113,11 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 const user = ref(null)
+const Entries = ref([]);
+let totalMeat = ref(0);
+let totalVeg = ref(0);
+let totalCarbs = ref(0);
+
 
 
 const ViewDevices = async()=>{
@@ -210,11 +139,34 @@ const getProfile = async () => {
     }
 }
 
+const getAllEntries = async()=>{
+     try {
+        const res = await axios.get('http://localhost:3000/api/getAllEntries')
+        Entries.value = res.data
+    } catch (err) {
+        console.error(err)
+    }
+}
+
+
+const ComputeDashBoardData = async()=>{
+    //loop through the Entries and store the computed data into respective predefined variables
+   Entries.value.forEach(entry => {
+        totalMeat.value += entry.meatWeight;  // Update reactive totalMeat
+        totalVeg.value += entry.vegWeight;    // Update reactive totalVeg
+        totalCarbs.value += entry.carbWeight; // Update reactive totalCarbs
+    });
+    console.log("HERE are the breakdown")
+    console.log(totalMeat.value,totalCarbs.value,totalVeg.value)
+}
+
 
 
 
 onBeforeMount(async () => {
     await getProfile();
+    await getAllEntries();
+    await ComputeDashBoardData()
 });
 
 
