@@ -31,6 +31,9 @@ import maplibre, { NavigationControl } from 'maplibre-gl';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useToast } from 'vue-toastification'
+const toast = useToast()
+
 
 const router = useRouter();
 const mapContainer = ref(null);
@@ -333,6 +336,14 @@ onMounted(async () => {
     background-color: red;
     /* Red circle when status is not 'ok' */
 }
+
+.white-toast {
+  background-color: #fff !important;
+  color: #000 !important;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
 
 
 
