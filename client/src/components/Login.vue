@@ -53,11 +53,19 @@ const loginUser = async () => {
     localStorage.setItem('token', res.data.token);
     console.log('Login successful!');
     //router.push('/Home'); // or whatever route you use
-     await router.push('/DashBoard')
+    await router.push('/DashBoard')
   } catch (err) {
     console.error(err);
     await router.push("/Login")
-    //toast.error("Username or password inavlid, please try again.....")
+    toast(`Invalid email or password. Try again.`, {
+      toastClassName: 'white-toast',
+    })
+    //clear the inputs
+
+    User.value.email = '';
+    User.value.password = '';
+
+
   }
 };
 
@@ -163,5 +171,7 @@ const loginUser = async () => {
   border: 1px solid #ccc;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
+
 
 </style>

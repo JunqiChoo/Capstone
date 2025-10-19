@@ -3,7 +3,7 @@
     <div class="login-card">
       <h1 class="login-title">REGISTER</h1>
 
-      <form @submit.prevent="loginUser" class="login-form">
+      <form class="login-form" @submit.prevent="createAccountClick">
         <input
           type="username"
           class="input-pill"
@@ -28,7 +28,7 @@
           placeholder="Admin"
           v-model="User.role"
         />
-        <button type="button" class="btn-pill btn-register w-75" @click="createAccountClick">
+        <button type="submit" class="btn-pill btn-register w-75">
             Register
           </button>
           <a href="#" @click="backToLogin" class="link">Already have an account? Back to login.</a>
@@ -43,28 +43,46 @@ import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 const toast = useToast()
+
+
 const router = useRouter();
 const User = ref({
     username:'',
     email: '',
     password: '',
-    role: ''
+    role: 'Admin'
 });
 const UrlLink = "http://localhost:3000/api/register"
-const backToLogin = async()=>{
-  router.push("/login")
+const backToLogin = async () => {
+  router.push("/Login");
 }
 const createAccountClick = async () => {
-    console.log(User.value);
-    try {
-        const tempData = await axios.post(UrlLink, { ...User.value })
-        router.push('/Login');
-    } catch (err) {
-        console.log(err)
-        toast.error("Unable to register to FOODWASTE APP :(")
-    }
+  console.log(User.value);
+  try {
+    const response = await axios.post(UrlLink, { ...User.value });
 
-}
+    toast('Account created successfully. Please log in.', {
+      toastClassName: 'white-toast',
+    });
+
+    router.push("/Login");
+  } catch (error) {
+    console.error('Registration failed:', error);
+
+    toast('Registration failed. Please check your details and try again.', {
+      toastClassName: 'white-toast',
+    });
+
+    // clear user input
+    User.value = {
+      username: '',
+      email: '',
+      password: '',
+      role: '',
+    };
+  }
+};
+
 </script>
 
 <style scoped>

@@ -320,7 +320,7 @@ onMounted(async () => {
     await getStatusOKDevices();
     await insertPieChart();
     await insertTrendChart();
-    toast('This is a white toast', {
+    toast(`Welcome back, ${user.value.username} !`, {
   toastClassName: 'white-toast',
 })
 

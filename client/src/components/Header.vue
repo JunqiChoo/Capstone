@@ -32,9 +32,8 @@
 import { useRouter } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-//import { useToast } from 'vue-toastification'
-
-//const toast = useToast();
+import { useToast } from 'vue-toastification'
+const toast = useToast()
 
 const user = ref(null)
 
@@ -64,6 +63,11 @@ const btnLogOut = async()=>{
   localStorage.removeItem("token"); 
   //toast.success(`Log out successful`)
   router.push("/Login");
+   toast(`Logged out successfully!`, {
+  toastClassName: 'white-toast',
+})
+  
+
 }
 
 
@@ -91,3 +95,13 @@ onMounted(async() => {
 })
 
 </script>
+
+<style>
+.white-toast {
+  background-color: #fff !important;
+  color: #000 !important;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+</style>
