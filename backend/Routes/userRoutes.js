@@ -21,6 +21,7 @@ const {deleteEntry} = require("../Controllers/entryController");
 
 //Devices Controller
 const {getDevices} = require("../Controllers/deviceController");
+const {getDevice} = require("../Controllers/deviceController");
 
 
 
@@ -41,5 +42,6 @@ router.route("/deleteEntry/:id").delete(deleteEntry);
 
 //Devices
 router.route("/getDevices").get(getDevices)
+router.route("/getDevice/:id").get(getDevice)
 
 module.exports = router;

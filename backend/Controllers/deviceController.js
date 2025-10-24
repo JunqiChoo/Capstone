@@ -11,4 +11,17 @@ const getDevices = async(req,res)=>{
     }
 }
 
-module.exports = {getDevices}
+
+
+
+const getDevice = async(req,res)=>{
+       connectDB();
+    try {
+        const temp = await Device.findById(req.params.id)
+        res.json(temp);
+    } catch (err) {
+        res.status(500).send("Server Error");
+    }
+}
+
+module.exports = {getDevices,getDevice}

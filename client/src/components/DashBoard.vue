@@ -56,12 +56,16 @@
             <div class="col-8">
                 <div class="card bg-light mb-3 large-card">
 
-                    <div class="card-body text-cente ">
-                        <h5 class="card-title">Trend Overtime</h5>
-                           <div class="chart-container">
-    <canvas id="trendChart"></canvas>
-  </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title mb-0">Trend Overtime</h5>
+                            <button type="button" class="btn btn-outline-secondary ms-auto" @click="ViewMoreInsights">View More Insights</button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
                     </div>
+
                 </div>
             </div>
             <div class="col-4">
@@ -90,7 +94,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(entry, index) in Entries" :key="index">
+                        <tr v-for="(entry, index) in Entries" :key="index" @click="ViewEntry(entry._id)">
                             <th scope="row">{{ index + 1 }}</th> <!-- Auto increment row number -->
                             <td scope="row">{{ entry.timestamp }}</td>
                             <td class="text-end">{{ entry.meatWeight }}</td>
@@ -191,7 +195,10 @@ const getStatusOKDevices = async () => {
         console.log(err);
     }
 }
-
+const ViewEntry = async(id)=>{
+   router.push(`/ViewEntry/${id}`);
+   console.log(id)
+}
 
 const insertPieChart = async () => {
     const ctx = document.getElementById('pieChart')
@@ -287,6 +294,11 @@ const insertTrendChart = async () => {
     }
   });
 };
+
+
+const ViewMoreInsights = async()=>{
+    router.push("/Insight")
+}
 
 
 const ComputeDashBoardData = async () => {
