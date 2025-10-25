@@ -7,6 +7,7 @@ import DashBoard from "../src/components/DashBoard.vue"
 import Devices from "../src/components/Devices.vue"
 import Insight from "../src/components/Insights.vue"
 import ViewEntry from "../src/components/ViewEntry.vue"
+import EntryLogs from "../src/components/EntryLogs.vue"
 //define the routes with the necedssary /xxx
 const routes = [
     {
@@ -45,6 +46,14 @@ const routes = [
         component: ViewEntry ,
         meta: { showNavbar: true }
     },
+    {
+        path: '/EntryLogs',
+        name: 'EntryLogs', 
+        component: EntryLogs ,
+        meta: { showNavbar: true }
+    },
+
+    //EntryLogs
 
 ]
 

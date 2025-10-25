@@ -8,18 +8,13 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navbarNav">
-      <!--<ul class="navbar-nav">
+      <ul class="navbar-nav">
         <li class="nav-item active">
-          <a class="nav-link" @click="btnClickAddEvent" >Create Event</a>
+          <a class="nav-link" @click="ViewEntryLogs" >View All Entries</a>
         </li>
-         <li class="nav-item active">
-          <a class="nav-link" @click="btnClickCompletedEvent" >Completed Event</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" @click="btnClickRewards">Rewards</a>
-        </li>
+      
       </ul>
-      -->
+      
       <!-- Logout Button floated right -->
       <button class="btn btn-outline-secondary ms-auto me-3" @click="btnLogOut">Logout</button>
     </div>
@@ -51,7 +46,9 @@ const btnClickCompletedEvent = async()=>{
   //router.push(`/completedEvent/${user.value._id}`)
 }
 
-
+const ViewEntryLogs = ()=>{
+  router.push("/EntryLogs")
+}
 const btnHome = async()=>{
   //router.push("/home")
 }

@@ -2,7 +2,7 @@
   <div class="login-page">
     <div class="login-card">
       <h1 class="login-title">FOOD WASTE TRACKER</h1>
-
+      
       <form @submit.prevent="loginUser" class="login-form">
         <input
           type="email"
