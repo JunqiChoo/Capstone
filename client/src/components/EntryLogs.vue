@@ -5,11 +5,11 @@
 
       <div class="col-10">
         <!-- Filters -->
-        <div class="d-flex align-items-center gap-3 m-2">
+        <div class="d-flex align-items-center gap-3 m-3">
           <button
             type="button"
             class="btn"
-            :class="isActive('all') ? 'btn-secondary' : 'btn-outline-secondary'"
+            :class="isActive('all') ? 'btn-primary' : 'btn-outline-primary'"
             @click="setFilter('all')"
           >
             ALL
@@ -18,7 +18,7 @@
           <button
             type="button"
             class="btn"
-            :class="isActive('week') ? 'btn-secondary' : 'btn-outline-secondary'"
+            :class="isActive('week') ? 'btn-primary' : 'btn-outline-primary'"
             @click="setFilter('week')"
           >
             Past Week
@@ -27,7 +27,7 @@
           <button
             type="button"
             class="btn"
-            :class="isActive('month') ? 'btn-secondary' : 'btn-outline-secondary'"
+            :class="isActive('month') ? 'btn-primary' : 'btn-outline-primary'"
             @click="setFilter('month')"
           >
             Past Month
@@ -67,7 +67,7 @@
             </div>
           </div>
 
-          <div class="mt-3">
+          <div class="mt-2">
             <button type="button" class="btn btn-secondary" @click="btnClickBack">Back</button>
           </div>
         </div>
