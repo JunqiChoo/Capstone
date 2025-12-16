@@ -91,7 +91,7 @@
       </div>
     </div>
     <div class="col mt-2">
-      <div class="card-body bg-light text-center  insights-card">
+      <div class="card-body bg-light text-center   insights-fixed-height">
         <div class="row">
           <div class="col-6">
             <h4>
@@ -496,4 +496,14 @@ watch([totalMeat, totalVeg, totalCarbs], () => {
   align-self: flex-end;
   margin-top: auto;
 }
+.insights-fixed-height {
+   min-height: 220px;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
 </style>
