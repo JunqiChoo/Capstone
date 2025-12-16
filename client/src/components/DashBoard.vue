@@ -186,7 +186,7 @@ const getAllEntries = async () => {
     const res = await axios.get('http://localhost:3000/api/getAllEntries')
 
     Entries.value = Array.isArray(res.data)
-      ? [...res.data].reverse()
+      ? [...res.data]
       : []
   } catch (err) {
     console.error(err)
