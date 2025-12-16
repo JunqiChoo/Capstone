@@ -59,7 +59,8 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="card-title mb-0">Trend Overtime</h5>
-                            <button type="button" class="btn btn-outline-secondary ms-auto" @click="ViewMoreInsights">View More Insights</button>
+                            <button type="button" class="btn btn-outline-secondary ms-auto"
+                                @click="ViewMoreInsights">View More Insights</button>
                         </div>
                         <div class="chart-container">
                             <canvas id="trendChart"></canvas>
@@ -91,6 +92,7 @@
                             <th class="text-end">Veg(g)</th>
                             <th class="text-end">Carbs(g)</th>
                             <th class="text-end">Total(g)</th>
+                            <th class="text-end" style="width: 140px;">Carbon Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -101,6 +103,14 @@
                             <td class="text-end">{{ entry.vegWeight }}</td>
                             <td class="text-end">{{ entry.carbWeight }}</td>
                             <td class="text-end">{{ entry.totalWeight }}</td>
+                            <td class="text-end" style="width: 140px;">
+                                <span
+                                    class="px-3 py-1 rounded-pill fw-bold d-inline-flex justify-content-center align-items-center gap-1 w-100"
+                                    :class="getCarbonStatus(entry).cls">
+                                    <i class="bi" :class="getCarbonStatus(entry).icon"></i>
+                                    {{ getCarbonStatus(entry).label }}
+                                </span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -183,6 +193,45 @@ const getAllEntries = async () => {
   }
 }
 
+
+const CARBON_FACTORS = {
+  meat: 27.0,
+  veg: 2.0,
+  carbs: 1.4
+}
+const LOW_CARBON = 1.5
+const MEDIUM_CARBON = 3.0
+
+const getCarbonStatus = (entry) => {
+  const meatKg = (Number(entry.meatWeight) || 0) / 1000
+  const vegKg = (Number(entry.vegWeight) || 0) / 1000
+  const carbKg = (Number(entry.carbWeight) || 0) / 1000
+
+  const totalCarbon =
+    meatKg * CARBON_FACTORS.meat +
+    vegKg * CARBON_FACTORS.veg +
+    carbKg * CARBON_FACTORS.carbs
+
+  if (totalCarbon <= LOW_CARBON) {
+    return {
+      label: 'Low',
+      cls: 'bg-success text-white',
+      icon: 'bi-check-circle'
+    }
+  } else if (totalCarbon <= MEDIUM_CARBON) {
+    return {
+      label: 'Average',
+      cls: 'bg-warning text-dark',
+      icon: 'bi-exclamation-circle'
+    }
+  } else {
+    return {
+      label: 'High',
+      cls: 'bg-danger text-white',
+      icon: 'bi-exclamation-triangle'
+    }
+  }
+}
 
 
 const getStatusOKDevices = async () => {
@@ -358,7 +407,7 @@ height: 120px;
 }
 
 .table-wrap {
-    height: 300px;
+    height: 400px;
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
