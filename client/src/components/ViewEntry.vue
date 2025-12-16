@@ -3,7 +3,7 @@
     <div class="row mt-5">
       <div class="col">
         <div class="card-body bg-light text-center mb-3">
-          <h3 class="card-title mb-2">Category Breakdown</h3>
+          <h3 class="card-title mb-2">Breakdown</h3>
           <canvas id="pieChart" class="pie-chart-entry"></canvas>
         </div>
 
@@ -101,7 +101,7 @@
               <thead>
                 <tr>
                   <th scope="col">Category</th>
-                  <th scope="col">Kg of CO₂ Emission</th>
+                  <th scope="col">CO₂ Emission (Kg)</th>
                 </tr>
               </thead>
               <tbody>
@@ -124,7 +124,7 @@
             </table>
           </div>
           <div class="col-6">
-            <h4>Comparison Insights</h4>
+            <h4>Insights</h4>
             <div class="mt-4">
               <p>
                 Meat

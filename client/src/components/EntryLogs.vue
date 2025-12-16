@@ -91,6 +91,11 @@ const Entries = ref([])
 const selectedFilter = ref('all') // 'all' | 'week' | 'month'
 const loading = ref(false)
 
+
+const fromAWeekAgoDate = ref('')
+const toDate = ref('')
+const fromAMonthAgoDate = ref('')
+
 const btnClickBack = () => {
   router.push('/DashBoard')
 }
@@ -103,11 +108,58 @@ const setFilter = async (filter) => {
   if(filter ==="all"){
     await fetchEntries()
   }else if(filter ==="week"){
+    await fetchPastWeek()
     console.log("week pressed")
   }else if(filter ==="month"){
+    await fetchPastMonth();
      console.log("month pressed")
   }
   
+}
+
+const fetchPastWeek = async()=>{
+  loading.value = true
+  try {
+    const res = await axios.get('http://localhost:3000/api/getAllEntries', {
+  params: {
+    fromDate: fromAWeekAgoDate.value,
+    toDate: toDate.value
+  }
+});
+
+
+    const data = Array.isArray(res.data) ? res.data : []
+
+    // reverse order (latest first)
+    Entries.value = [...data]
+  } catch (err) {
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+
+}
+const fetchPastMonth = async()=>{
+   loading.value = true
+  try {
+    const res = await axios.get('http://localhost:3000/api/getAllEntries', {
+  params: {
+    fromDate: fromAMonthAgoDate.value,
+    toDate: toDate.value
+  }
+});
+
+
+    const data = Array.isArray(res.data) ? res.data : []
+
+    // reverse order (latest first)
+    Entries.value = [...data]
+  } catch (err) {
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+
 }
 
 
@@ -119,7 +171,7 @@ const fetchEntries = async () => {
     const data = Array.isArray(res.data) ? res.data : []
 
     // reverse order (latest first)
-    Entries.value = [...data].reverse()
+    Entries.value = [...data]
   } catch (err) {
     console.error(err)
   } finally {
@@ -134,8 +186,25 @@ const ViewEntry = async(id)=>{
 }
 
 
+
 onMounted(async () => {
   await fetchEntries() // default: 'all'
+   const today = new Date()
+  toDate.value = today.toISOString().split('T')[0]
+
+  //for a week ago From Date
+  const weekAgo = new Date()
+  weekAgo.setDate(today.getDate() - 7)
+
+  fromAWeekAgoDate.value = weekAgo.toISOString().split('T')[0]
+
+  //for a month ago From Date
+  const mthAgo = new Date()
+  mthAgo.setDate(today.getDate() - 30)
+  fromAMonthAgoDate.value = mthAgo.toISOString().split('T')[0]
+
+  console.log(toDate,fromAWeekAgoDate,fromAMonthAgoDate);
+
 })
 </script>
 

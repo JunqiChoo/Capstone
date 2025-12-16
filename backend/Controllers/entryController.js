@@ -64,16 +64,38 @@ const getEntry = async(req,res)=>{
 }
 
 //viewAllEntries
-const getAllEntries = async(req,res)=>{
-    await connectDB();
-    try{
-        const AllEntries = await Entry.find();
-        console.log(AllEntries)
-        res.json(AllEntries)
-    }catch(err){
-        console.log(err)
+const getAllEntries = async (req, res) => {
+  await connectDB();
+
+  try {
+    const { fromDate, toDate } = req.query;
+
+    let query = {};
+
+    // If date range is provided, apply filter
+    if (fromDate && toDate) {
+      const from = new Date(fromDate);
+      const to = new Date(toDate);
+      to.setHours(23, 59, 59, 999); // include entire "to" day
+
+      query.timestamp = {
+        $gte: from,
+        $lte: to
+      };
     }
-}
+
+    const allEntries = await Entry
+      .find(query)
+      .sort({ timestamp: -1 }); // newest first
+
+    res.json(allEntries);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 //Delete
 const deleteEntry =async()=>{

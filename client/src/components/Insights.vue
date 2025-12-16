@@ -144,12 +144,10 @@ let StatusOkDeviceCount = ref(0);
 const fromDate = ref('')
 const toDate = ref('')
 onMounted(async () => {
-   
-const today = new Date()
+
+  const today = new Date()
   const weekAgo = new Date()
   weekAgo.setDate(today.getDate() - 7)
-
-  // format to YYYY-MM-DD (required by <input type="date">)
   toDate.value = today.toISOString().split('T')[0]
   fromDate.value = weekAgo.toISOString().split('T')[0]
 
