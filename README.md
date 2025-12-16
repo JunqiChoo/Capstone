@@ -1,5 +1,7 @@
 # Smart Cafeteria Tray Return & Food Waste Tracker
 
+* current progress, left the view insights page with machine learning for prediction and exporting of the data based on the dates into CSV format
+
 This project is a Final Year Project (FYP) focused on promoting
 sustainability and reducing food waste at SIT's Punggol Campus. The
 system integrates **hardware, AI, and software** to automatically detect
@@ -57,6 +59,9 @@ management.
 
 <img width="1286" height="794" alt="image" src="https://github.com/user-attachments/assets/2d6713f5-f04e-4449-a57a-e4685eb9c949" />
 <img width="1281" height="425" alt="image" src="https://github.com/user-attachments/assets/919fe1ca-6d0a-483b-93ec-5dd249661c66" />
+
+
+## Current Web Applpication
 
 ![photo_2025-12-16_12-07-19](https://github.com/user-attachments/assets/f2154fbe-da9b-42c2-a61c-d8b0cafc7376)
 ![photo_2025-12-16_12-54-56](https://github.com/user-attachments/assets/f4ea6d9e-e3e9-4513-967d-856382b13e95)
