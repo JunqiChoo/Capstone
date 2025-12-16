@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="row mt-5">
+    <div class="row mt-4">
       <div class="col">
         <div class="card-body bg-light text-center mb-3">
           <h3 class="card-title mb-2">Breakdown</h3>
