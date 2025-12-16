@@ -1,7 +1,106 @@
 
 
 <template>
-    <h1>Insights Page</h1>
+
+  <div class="container mt-4">
+    <div class="row">
+  <div class="col">
+    <div class="card bg-light mb-3 p-3">
+      <form class="row g-3 align-items-end">
+        
+        <!-- From date -->
+        <div class="col-md-5">
+          <label for="fromDate" class="form-label fw-semibold">From</label>
+          <input
+            type="date"
+            class="form-control"
+            id="fromDate"
+            v-model="fromDate"
+          />
+        </div>
+
+        <!-- To date -->
+        <div class="col-md-5">
+          <label for="toDate" class="form-label fw-semibold">To</label>
+          <input
+            type="date"
+            class="form-control"
+            id="toDate"
+            v-model="toDate"
+          />
+        </div>
+
+        <!-- Apply button -->
+        <div class="col-md-2 d-grid">
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="applyDateFilter"
+          >
+          <i class="bi bi-download"></i>
+            Export to CSV
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+    <div class="row">
+      <div class="col">
+        <div class="card bg-light mb-3">
+
+          <div class="card-body text-center">
+            <h5 class="card-title">Today's Waste</h5>
+            <p class="card-text fw-bold text-dark display-6">{{ (totalWeight / 1000).toFixed(1) }} Kg</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card bg-light mb-3">
+          <div class="card-body text-center">
+            <h5 class="card-title">Weekly Average</h5>
+            <p class="card-text fw-bold text-dark display-6">{{ perAvgWaste }} Kg</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card bg-light mb-3">
+          <div class="card-body text-center">
+            <h5 class="card-title">Weekly Trend</h5>
+            <p class="card-text fw-bold text-dark display-6">{{ TopContributer }}</p>
+          </div>
+        </div>
+      </div>
+      
+
+    </div>
+  </div>
+  <div class="container ">
+    <div class="row">
+      <div class="col-8">
+         <div class="card bg-light mb-3 large-card">
+          <div class="card-body text-center">
+           <h3>Notification</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card bg-light mb-3 large-card">
+          <div class="card-body text-center">
+           <h3>Prediction</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+     <div class="mt-4">
+            <button type="button" class="btn btn-secondary" @click="btnClickBack">Back</button>
+          </div>
+  </div>
+  <!--Table of device status-->
+  
+  
 </template>
 <script setup>
 import { ref, onMounted, onBeforeMount } from 'vue'
@@ -42,12 +141,24 @@ let StatusOkDeviceCount = ref(0);
 
 
 
-
+const fromDate = ref('')
+const toDate = ref('')
 onMounted(async () => {
    
+const today = new Date()
+  const weekAgo = new Date()
+  weekAgo.setDate(today.getDate() - 7)
+
+  // format to YYYY-MM-DD (required by <input type="date">)
+  toDate.value = today.toISOString().split('T')[0]
+  fromDate.value = weekAgo.toISOString().split('T')[0]
+
 })
 
 
+const btnClickBack = () => {
+  router.push('/DashBoard')
+}
 
 
 </script>

@@ -10,7 +10,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item active">
-          <a class="nav-link" @click="ViewEntryLogs" >View All Entries</a>
+          <a class="nav-link" @click="ViewEntryLogs" >View Entries</a>
         </li>
       
       </ul>

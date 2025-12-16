@@ -172,13 +172,17 @@ const getProfile = async () => {
 }
 
 const getAllEntries = async () => {
-    try {
-        const res = await axios.get('http://localhost:3000/api/getAllEntries')
-        Entries.value = res.data
-    } catch (err) {
-        console.error(err)
-    }
+  try {
+    const res = await axios.get('http://localhost:3000/api/getAllEntries')
+
+    Entries.value = Array.isArray(res.data)
+      ? [...res.data].reverse()
+      : []
+  } catch (err) {
+    console.error(err)
+  }
 }
+
 
 
 const getStatusOKDevices = async () => {

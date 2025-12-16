@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-1"></div>
 
-      <div class="col-10">
+      <div class="col-10 mt-4">
         <!-- Filters -->
         <div class="d-flex align-items-center gap-3 m-3">
           <button
@@ -67,7 +67,7 @@
             </div>
           </div>
 
-          <div class="mt-2">
+          <div class="mt-4">
             <button type="button" class="btn btn-secondary" @click="btnClickBack">Back</button>
           </div>
         </div>
@@ -115,14 +115,18 @@ const fetchEntries = async () => {
   loading.value = true
   try {
     const res = await axios.get('http://localhost:3000/api/getAllEntries')
-    Entries.value = Array.isArray(res.data) ? res.data : []
+
+    const data = Array.isArray(res.data) ? res.data : []
+
+    // reverse order (latest first)
+    Entries.value = [...data].reverse()
   } catch (err) {
     console.error(err)
-    // toast.error('Failed to load entries')
   } finally {
     loading.value = false
   }
 }
+
 
 const ViewEntry = async(id)=>{
    router.push(`/ViewEntry/${id}`);

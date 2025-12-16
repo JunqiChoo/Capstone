@@ -7,9 +7,10 @@ const cors = require('cors');
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cors({
-  origin: 'http://localhost:5173'
-}))
+app.use(cors());
+//app.use(cors({
+ // origin: 'http://localhost:5173'
+//}))
 
 app.use('/api',require("./Routes/userRoutes"))
 
@@ -18,7 +19,7 @@ app.get('/', (req, res) => {
 })
 
 
-app.listen(port, (error) =>{
+app.listen(port,"0.0.0.0", (error) =>{
     if(!error)
         console.log(`Server is Successfully Running, and App is listening on port  ${port}................`);
     else 
