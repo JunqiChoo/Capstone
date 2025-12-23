@@ -64,10 +64,3 @@ management.
 ## Current Web Applpication
 
 
-![photo_2025-12-16_12-06-49](https://github.com/user-attachments/assets/4c2352d6-2f7b-4793-8c79-7b9b2f32562c)
-![photo_2025-12-16_12-07-03](https://github.com/user-attachments/assets/3e45eb69-2720-4a48-95a9-70996b3b2a4b)
-![photo_2025-12-16_12-54-56](https://github.com/user-attachments/assets/f4ea6d9e-e3e9-4513-967d-856382b13e95)
-![photo_2025-12-16_12-04-37](https://github.com/user-attachments/assets/b80db4e5-168a-4b72-957f-3ed3414ff210)
-![photo_2025-12-16_12-07-19](https://github.com/user-attachments/assets/f2154fbe-da9b-42c2-a61c-d8b0cafc7376)
-
-
