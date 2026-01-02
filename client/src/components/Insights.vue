@@ -20,7 +20,7 @@
 
             <!-- Apply button -->
             <div class="col-md-2 d-grid">
-              <button type="button" class="btn btn-primary" @click="applyDateFilter">
+              <button type="button" class="btn btn-primary" @click="ExportCSV">
                 <i class="bi bi-download"></i>
                 Export to CSV
               </button>
@@ -200,6 +200,7 @@ Chart.register(
 
 const router = useRouter()
 const user = ref(null)
+const ExportEntries = ref([]);
 const Entries = ref([]);
 const Devices = ref([]);
 let totalMeat = ref(0);
@@ -448,6 +449,44 @@ const actionableInsight = computed(() => {
   return `<strong>${item}</strong> is the top contributor to food waste this week. Portion adjustment is recommended.`
 
 })
+
+
+
+
+const ExportCSV = async () => {
+  console.log("btn pressed for export cvs")
+  console.log(toDate.value, fromDate.value)
+  //await fetchDataForCSV();
+  //console.log("This si the entries to be exported",ExportEntries)
+  const from = fromDate.value;
+  const to = toDate.value;
+
+  window.open(
+    `http://localhost:3000/api/exportCSV?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    "_blank"
+  );
+
+
+}
+const fetchDataForCSV = async () => {
+  try {
+    const res = await axios.get('http://localhost:3000/api/getAllEntries', {
+      params: {
+        fromDate: fromDate.value,
+        toDate: toDate.value
+      }
+    })
+
+    const data = Array.isArray(res.data) ? res.data : []
+    ExportEntries.value = [...data]
+
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+
+
 
 
 const btnClickBack = () => {

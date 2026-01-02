@@ -18,6 +18,7 @@ const {createEntry} = require("../Controllers/entryController");
 const {getEntry} = require("../Controllers/entryController");
 const {getAllEntries} = require("../Controllers/entryController");
 const {deleteEntry} = require("../Controllers/entryController");
+const {exportEntriesExcel} = require("../Controllers/entryController");
 
 //Devices Controller
 const {getDevices} = require("../Controllers/deviceController");
@@ -37,6 +38,8 @@ router.route("/createEntry").post(createEntry);
 router.route("/getEntry/:id").get(getEntry);
 router.route("/getAllEntries").get(getAllEntries);
 router.route("/deleteEntry/:id").delete(deleteEntry);
+
+router.route("/exportCSV").get(exportEntriesExcel);
 
 
 
