@@ -10,6 +10,10 @@
             @click="setFilter('all')">
             ALL
           </button>
+          <button type="button" class="btn" :class="isActive('today') ? 'btn-primary' : 'btn-outline-primary'"
+            @click="setFilter('today')">
+            Today
+          </button>
 
           <button type="button" class="btn" :class="isActive('week') ? 'btn-primary' : 'btn-outline-primary'"
             @click="setFilter('week')">
@@ -20,6 +24,7 @@
             @click="setFilter('month')">
             Past Month
           </button>
+
         </div>
 
         <!-- Entry logs -->
@@ -149,6 +154,10 @@ const setFilter = async (filter) => {
     await fetchPastMonth();
     console.log("month pressed")
   }
+  else if (filter === "today") {
+    await fetchToday();
+    console.log("today pressed")
+  }
 
 }
 
@@ -174,6 +183,31 @@ const fetchPastWeek = async () => {
   }
 
 }
+
+
+const fetchToday = async () => {
+  loading.value = true
+  try {
+    const res = await axios.get('http://localhost:3000/api/getAllEntries', {
+      params: {
+        fromDate: toDate.value,
+        toDate: toDate.value
+      }
+    });
+
+
+    const data = Array.isArray(res.data) ? res.data : []
+
+    // reverse order (latest first)
+    Entries.value = [...data]
+  } catch (err) {
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+
+}
+
 const fetchPastMonth = async () => {
   loading.value = true
   try {
