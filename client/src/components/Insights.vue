@@ -327,7 +327,7 @@ const renderCarbonBarChart = () => {
         {
           label: 'Carbon Emission (kg CO₂e)',
           data: [lastWeekCarbon, thisWeekCarbon],
-          backgroundColor: ['#adb5bd', '#dc3545']
+          backgroundColor: ['#adb5bd', '#4A4A4A']
         }
       ]
     },
@@ -576,7 +576,7 @@ const renderWeeklyBarChart = () => {
         {
           label: 'Total Waste (kg)',
           data: [lastWeekKg, thisWeekKg],
-          backgroundColor: ['#adb5bd', '#2db928']
+          backgroundColor: ['#adb5bd', '#4A4A4A']
         }
       ]
     },
