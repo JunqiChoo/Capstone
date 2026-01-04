@@ -107,12 +107,22 @@ const deleteEntry =async()=>{
         console.log(singleEntry)
         res.json(singleEntry)
     }catch(err){
-        console.log(err)
-    }
+    console.log(err)
+  }
 }
 const exportEntriesExcel = async (req, res) => {
   try {
-    const { from, to } = req.query;
+    const {
+      from,
+      to,
+      weeklyTrend,
+      totalWasteKg,
+      todayWasteKg,
+      nextWeekPrediction,
+      carbonAnalytics,
+      topContributor
+    } = req.query;
+
 
     // 🔑 FIX 1: Proper date range
     const startDate = new Date(from);
@@ -162,15 +172,48 @@ const exportEntriesExcel = async (req, res) => {
     const totalCarbs = entries.reduce((s, e) => s + e.carbWeight, 0);
 
     insightSheet.addRows([
-      ["Metric", "Value"],
-      ["Total Waste (g)", totalWaste],
-      ["Total Meat Waste (g)", totalMeat],
-      ["Total Vegetable Waste (g)", totalVeg],
-      ["Total Carb Waste (g)", totalCarbs],
-      ["Entries Count", entries.length],
-      ["From Date", from],
-      ["To Date", to],
-    ]);
+  // ===== Header =====
+  ["Metric", "Value"],
+  [],
+
+  // ===== Summary =====
+  ["Entries Count", entries.length],
+  [],
+  
+  // ===== Date Range =====
+  ["From Date", from],
+  ["To Date", to],
+  [],
+
+  // ===== Raw Aggregates =====
+  ["Total Waste (g)", totalWaste],
+  ["Total Meat Waste (g)", totalMeat],
+  ["Total Vegetable Waste (g)", totalVeg],
+  ["Total Carb Waste (g)", totalCarbs],
+  [],
+
+  // ===== Dashboard Insights =====
+  ["Weekly Trend", weeklyTrend || "N/A"],
+  ["Total Waste (kg)", totalWasteKg || "N/A"],
+  ["Today's Waste (kg)", todayWasteKg || "N/A"],
+  ["Next Week Prediction (kg)", nextWeekPrediction || "N/A"],
+  ["Carbon Analytics", carbonAnalytics || "N/A"],
+  ["Top Waste Contributor", topContributor || "N/A"]
+]);
+
+
+insightSheet.eachRow((row) => {
+  const text = row.getCell(1).value;
+  if (
+    text === "Metric" ||
+    text === "Summary" ||
+    text === "Raw Aggregates" ||
+    text === "Dashboard Insights"
+  ) {
+    row.font = { bold: true };
+  }
+});
+
 
     res.setHeader(
       "Content-Type",

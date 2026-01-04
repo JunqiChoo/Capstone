@@ -228,6 +228,7 @@ const thisWeekEntries = ref([]);
 const lastWeekEntries = ref([]);
 const weeklyBarChart = ref(null)
 let weeklyChartInstance = null
+let TopContributor = ref();
 
 
 const predictionInput = ref([])
@@ -512,7 +513,7 @@ const actionableInsight = computed(() => {
   }
 
   const item = labelMap[topWasteContributor.value.category]
-
+  TopContributor.value = item;
   return `<strong>${item}</strong> is the top contributor to food waste this week. Portion adjustment is recommended.`
 
 })
@@ -520,7 +521,7 @@ const actionableInsight = computed(() => {
 
 
 
-const ExportCSV = async () => {
+/*const ExportCSV = async () => {
   console.log("btn pressed for export cvs")
   console.log(toDate.value, fromDate.value)
   //await fetchDataForCSV();
@@ -532,7 +533,29 @@ const ExportCSV = async () => {
     `http://localhost:3000/api/exportCSV?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
     "_blank"
   );
+}*/
+
+
+const ExportCSV = async () => {
+  const params = new URLSearchParams({
+    from: fromDate.value,
+    to: toDate.value,
+
+    weeklyTrend: weeklyTrend.value.text,
+    totalWasteKg: totalWasteKg.value,
+    todayWasteKg: todayWasteKg.value,
+    nextWeekPrediction: nextWeekPrediction.value,
+    carbonAnalytics: carbonAnalytics.value.text,
+    topContributor: TopContributor.value
+  })
+
+  window.open(
+    `http://localhost:3000/api/exportCSV?${params.toString()}`,
+    "_blank"
+  )
 }
+
+
 const fetchDataForCSV = async () => {
   try {
     const res = await axios.get('http://localhost:3000/api/getAllEntries', {
