@@ -144,7 +144,7 @@ const exportEntriesExcel = async (req, res) => {
       { header: "Carbs (g)", key: "carbWeight" },
       { header: "Total (g)", key: "totalWeight" },
       { header: "Device ID", key: "deviceId" },
-      { header: "Timestamp", key: "timestamp" }, // ✅ FIX 2
+      { header: "Timestamp", key: "timestamp" },
     ];
 
     entries.forEach(entry => {
@@ -176,9 +176,14 @@ const exportEntriesExcel = async (req, res) => {
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
+    const safeFrom = from.replace(/[:]/g, "-");
+    const safeTo = to.replace(/[:]/g, "-");
+
+    const filename = `food_waste_report_${safeFrom}_to_${safeTo}.xlsx`;
+
     res.setHeader(
       "Content-Disposition",
-      "attachment; filename=food_waste_report.xlsx"
+      `attachment; filename="${filename}"`
     );
 
     await workbook.xlsx.write(res);

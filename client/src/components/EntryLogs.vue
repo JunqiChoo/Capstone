@@ -191,7 +191,7 @@ const fetchToday = async () => {
     const res = await axios.get('http://localhost:3000/api/getAllEntries', {
       params: {
         fromDate: toDate.value,
-        toDate: toDate.value
+        toDate: toDate.value,
       }
     });
 

@@ -96,12 +96,26 @@
 
 
       <div class="col-4">
-        <div class="card bg-light mb-3 large-card">
-          <div class="card-body text-center">
-            <h3>Prediction</h3>
-          </div>
-        </div>
-      </div>
+  <div class="card bg-light mb-3 large-card">
+    <div class="card-body text-center">
+      <h3>Next Week's Estimate</h3>
+
+      <p v-if="nextWeekPrediction !== null"
+         class="fw-bold display-3 text-primary">
+        {{ nextWeekPrediction }} kg
+      </p>
+
+      <p v-else class="text-muted">
+        Insufficient data
+      </p>
+
+      <small class="text-muted">
+        ML-based linear regression forecast
+      </small>
+    </div>
+  </div>
+</div>
+
     </div>
 
     <!--Here is for the ML prediction estimate-->
@@ -232,6 +246,58 @@ const CARBON_FACTORS = {
 }
 
 
+
+function trainLinearRegression(data) {
+  const n = data.length
+  if (n < 2) return null
+
+  let sumX = 0
+  let sumY = 0
+  let sumXY = 0
+  let sumXX = 0
+
+  data.forEach(p => {
+    sumX += p.day
+    sumY += p.waste
+    sumXY += p.day * p.waste
+    sumXX += p.day * p.day
+  })
+
+  const slope =
+    (n * sumXY - sumX * sumY) /
+    (n * sumXX - sumX * sumX)
+
+  const intercept =
+    (sumY - slope * sumX) / n
+
+  return { slope, intercept }
+}
+
+function predictWaste(day, model) {
+  return model.slope * day + model.intercept
+}
+
+const nextWeekPrediction = computed(() => {
+  if (predictionInput.value.length < 5) {
+    return null // not enough data
+  }
+
+  const model = trainLinearRegression(predictionInput.value)
+  if (!model) return null
+
+  const lastDay = predictionInput.value.length
+  let total = 0
+
+  // Predict next 7 days
+  for (let i = 1; i <= 7; i++) {
+    total += predictWaste(lastDay + i, model)
+  }
+
+  return Number(total.toFixed(2))
+})
+
+
+
 const calculateCarbonKg = (entries) => {
   let total = 0
 
@@ -344,8 +410,9 @@ onMounted(async () => {
   fromDate.value = weekAgo.toISOString().split('T')[0]
   
 
-  fetchDataBasedOnDates();
-  fetchWeeklyEntries();
+  await fetchDataBasedOnDates();
+  await fetchWeeklyEntries();
+  await fetchAllEntriesForPrediction() // ML
   console.log("entries for each ");
   console.log(thisWeekEntries,lastWeekEntries);
 })
@@ -465,8 +532,6 @@ const ExportCSV = async () => {
     `http://localhost:3000/api/exportCSV?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
     "_blank"
   );
-
-
 }
 const fetchDataForCSV = async () => {
   try {
@@ -611,7 +676,7 @@ const fetchDataBasedOnDates = async () => {
     const data = Array.isArray(res.data) ? res.data : []
     Entries.value = [...data]
 
-    // 👉 Compute today's waste
+    // Compute today's waste
     const today = new Date().toISOString().split('T')[0]
 
     const todayTotalGrams = data
@@ -620,12 +685,27 @@ const fetchDataBasedOnDates = async () => {
 
     todayWasteKg.value = (todayTotalGrams / 1000).toFixed(2)
 
-    // 👉 Existing ML prep
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+
+
+const fetchAllEntriesForPrediction = async () => {
+  try {
+    const res = await axios.get('http://localhost:3000/api/getAllEntries')
+
+    const data = Array.isArray(res.data) ? res.data : []
+
+    // Group & format for ML
     const grouped = groupWasteByDay(data)
     predictionInput.value = formatForPrediction(grouped)
 
+    console.log("ML prediction input (ALL DATA):", predictionInput.value)
+
   } catch (err) {
-    console.error(err)
+    console.error("Failed to fetch prediction data", err)
   }
 }
 
