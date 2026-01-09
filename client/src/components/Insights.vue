@@ -49,7 +49,7 @@
         <div class="card bg-light mb-3">
           <div class="card-body text-center">
             <h5 class="card-title">Total Waste for Selected Dates</h5>
-            <p class="card-text fw-bold text-dark display-6">{{ totalWasteKg }} Kg</p>
+            <p class="card-text fw-bold text-dark display-6">  {{ totalWasteKgSelected }} Kg</p>
           </div>
         </div>
       </div>
@@ -427,6 +427,18 @@ watch([fromDate, toDate], ([newFrom, newTo]) => {
     fetchDataBasedOnDates()
   }
 })
+function calculateTotalWasteForSelectedDates(entries) {
+  const totalGrams = entries.reduce(
+    (sum, e) => sum + e.totalWeight,
+    0
+  )
+  return Number((totalGrams / 1000).toFixed(2)) // g → kg
+}
+const totalWasteKgSelected = computed(() => {
+  if (!Entries.value.length) return "0.00"
+  return calculateTotalWasteForSelectedDates(Entries.value).toFixed(2)
+})
+
 const calculateTotalKg = (entries) => {
   const totalGrams = entries.reduce(
     (sum, e) => sum + e.totalWeight,
@@ -542,7 +554,7 @@ const ExportCSV = async () => {
     to: toDate.value,
 
     weeklyTrend: weeklyTrend.value.text,
-    totalWasteKg: totalWasteKg.value,
+    totalWasteKg: totalWasteKgSelected.value,
     todayWasteKg: todayWasteKg.value,
     nextWeekPrediction: nextWeekPrediction.value,
     carbonAnalytics: carbonAnalytics.value.text,
