@@ -32,6 +32,12 @@ const EntrySchema = new mongoose.Schema({
     type: String, // store local path or cloud URL
     required: false,
   },
+  stallId: {
+    type: Number,
+    enum: [1, 2, 3, 4],   // only allow stall 1–4
+    required: false      // old data still works
+  },
+
   deviceId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Device",

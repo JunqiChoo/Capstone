@@ -17,7 +17,8 @@ const createEntry = async (req, res) => {
             carbWeight,
             totalWeight,
             imagePath,
-            deviceId
+            deviceId,
+            stallId
         } = req.body
 
         const newEntry = new Entry({
@@ -28,6 +29,7 @@ const createEntry = async (req, res) => {
             totalWeight: totalWeight,
             imagePath: imagePath || null,
             deviceId: deviceId,
+            stallId: stallId
         });
 
         const savedEntry = await newEntry.save();
