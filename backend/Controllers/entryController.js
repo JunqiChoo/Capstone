@@ -71,9 +71,13 @@ const getAllEntries = async (req, res) => {
   await connectDB();
 
   try {
-    const { fromDate, toDate } = req.query;
+    const { stallId, fromDate, toDate } = req.query;
 
     let query = {};
+    
+     if (stallId) {
+      query.stallId = stallId;
+    }
 
     // If date range is provided, apply filter
     if (fromDate && toDate) {

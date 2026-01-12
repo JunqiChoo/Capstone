@@ -1,92 +1,142 @@
 <template>
+
   <div class="container">
+
     <div class="row">
+      <div class="col-4 mt-5">
+
+<!-- <h2>{{ selectedStall?.name || 'Select Stall' }}</h2> -->
 
 
-      <div class="col mt-4">
-        <!-- Filters -->
-        <div class="d-flex align-items-center gap-3 m-3">
-          <button type="button" class="btn" :class="isActive('all') ? 'btn-primary' : 'btn-outline-primary'"
-            @click="setFilter('all')">
-            ALL
-          </button>
-          <button type="button" class="btn" :class="isActive('today') ? 'btn-primary' : 'btn-outline-primary'"
-            @click="setFilter('today')">
-            Today
-          </button>
 
-          <button type="button" class="btn" :class="isActive('week') ? 'btn-primary' : 'btn-outline-primary'"
-            @click="setFilter('week')">
-            Past Week
-          </button>
+        <div class="dropdown w-100">
+<button
+  class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
+  data-bs-toggle="dropdown"
+>
+  {{ selectedStall?.name || 'Select Stall' }}
+</button>
 
-          <button type="button" class="btn" :class="isActive('month') ? 'btn-primary' : 'btn-outline-primary'"
-            @click="setFilter('month')">
-            Past Month
-          </button>
+  <ul class="dropdown-menu w-100">
+  <li v-for="stall in stalls" :key="stall.id">
+    <a
+      class="dropdown-item"
+      href="#"
+      @click.prevent="selectStall(stall)"
+    >
+      {{ stall.name }}
+    </a>
+  </li>
+</ul>
 
-        </div>
 
-        <!-- Entry logs -->
+</div>
+
+  
+        <img src="@/assets/stallImage.jpg" class="food-image mb-3" alt="Food waste image" />
+      </div>
+      <div class="col-8">
+
         <div class="container">
+
+
+
           <div class="row">
-            <div class="table-wrap-entries">
-              <table class="table table-hover table-sticky mb-0">
-                <thead>
-                  <tr>
-                    <th>No.</th>
-                    <th>Entry Logs</th>
-                    <th class="text-end">Meat(g)</th>
-                    <th class="text-end">Veg(g)</th>
-                    <th class="text-end">Carbs(g)</th>
-                    <th class="text-end">Total(g)</th>
-                   <th class="text-end" style="width: 140px;">Carbon Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(entry, index) in Entries" :key="entry._id || index" @click="ViewEntry(entry._id)">
-                    <th scope="row">{{ index + 1 }}</th>
-                    <td scope="row">{{ entry.timestamp }}</td>
-                    <td class="text-end">{{ entry.meatWeight }}</td>
-                    <td class="text-end">{{ entry.vegWeight }}</td>
-                    <td class="text-end">{{ entry.carbWeight }}</td>
-                    <td class="text-end">{{ entry.totalWeight }}</td>
-                    <td class="text-end">
-                    <td class="text-end" style="width: 140px;">
-                      <span
-                        class="px-3 py-1 rounded-pill fw-bold d-inline-flex justify-content-center align-items-center gap-1 w-100"
-                        :class="getCarbonStatus(entry).cls">
-                        <i class="bi" :class="getCarbonStatus(entry).icon"></i>
-                        {{ getCarbonStatus(entry).label }}
-                      </span>
-                    </td>
 
-                    </td>
 
-                  </tr>
-                </tbody>
-              </table>
+            <div class="col mt-4">
+              <!-- Filters -->
+              <div class="d-flex align-items-center gap-3 m-3">
+                <button type="button" class="btn" :class="isActive('all') ? 'btn-primary' : 'btn-outline-primary'"
+                  @click="setFilter('all')">
+                  ALL
+                </button>
+                <button type="button" class="btn" :class="isActive('today') ? 'btn-primary' : 'btn-outline-primary'"
+                  @click="setFilter('today')">
+                  Today
+                </button>
+
+                <button type="button" class="btn" :class="isActive('week') ? 'btn-primary' : 'btn-outline-primary'"
+                  @click="setFilter('week')">
+                  Past Week
+                </button>
+
+                <button type="button" class="btn" :class="isActive('month') ? 'btn-primary' : 'btn-outline-primary'"
+                  @click="setFilter('month')">
+                  Past Month
+                </button>
+
+              </div>
+
+              <!-- Entry logs -->
+              <div class="container">
+                <div class="row">
+                  <div class="table-wrap-entries">
+                    <table class="table table-hover table-sticky mb-0">
+                      <thead>
+                        <tr>
+                          <th>No.</th>
+                          <th>Entry Logs</th>
+                          <th class="text-end">Meat(g)</th>
+                          <th class="text-end">Veg(g)</th>
+                          <th class="text-end">Carbs(g)</th>
+                          <th class="text-end">Total(g)</th>
+                          <th class="text-end" style="width: 140px;">Carbon Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="(entry, index) in Entries" :key="entry._id || index" @click="ViewEntry(entry._id)">
+                          <th scope="row">{{ index + 1 }}</th>
+                          <td scope="row">{{ entry.timestamp }}</td>
+                          <td class="text-end">{{ entry.meatWeight }}</td>
+                          <td class="text-end">{{ entry.vegWeight }}</td>
+                          <td class="text-end">{{ entry.carbWeight }}</td>
+                          <td class="text-end">{{ entry.totalWeight }}</td>
+                          <td class="text-end">
+                          <td class="text-end" style="width: 140px;">
+                            <span
+                              class="px-3 py-1 rounded-pill fw-bold d-inline-flex justify-content-center align-items-center gap-1 w-100"
+                              :class="getCarbonStatus(entry).cls">
+                              <i class="bi" :class="getCarbonStatus(entry).icon"></i>
+                              {{ getCarbonStatus(entry).label }}
+                            </span>
+                          </td>
+
+                          </td>
+
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="mt-4">
+                  <button type="button" class="btn btn-secondary" @click="btnClickBack">Back</button>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div class="mt-4">
-            <button type="button" class="btn btn-secondary" @click="btnClickBack">Back</button>
           </div>
         </div>
       </div>
-
     </div>
   </div>
+
+
+
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref ,watch} from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 // import { useToast } from 'vue-toastification'
 // const toast = useToast()
 
 const router = useRouter()
+
+import foodImg from '@/assets/stallImage.jpg'
+
 
 const Entries = ref([])
 const selectedFilter = ref('all') // 'all' | 'week' | 'month'
@@ -96,6 +146,23 @@ const loading = ref(false)
 const fromAWeekAgoDate = ref('')
 const toDate = ref('')
 const fromAMonthAgoDate = ref('')
+const stalls = [
+  { id: 1, name: 'Mixed Vegetable Rice Stall' },
+  { id: 2, name: 'Western Grill Stall' },
+  { id: 3, name: 'Chicken Rice Stall' },
+  { id: 4, name: 'Mini Wok Stall' }
+]
+
+const selectedStall = ref(stalls[0])
+
+
+function selectStall(stall) {
+  selectedStall.value = stall
+  console.log('Selected stall ID:', stall.id)
+}
+
+
+
 
 const btnClickBack = () => {
   router.push('/DashBoard')
@@ -167,7 +234,8 @@ const fetchPastWeek = async () => {
     const res = await axios.get('http://localhost:3000/api/getAllEntries', {
       params: {
         fromDate: fromAWeekAgoDate.value,
-        toDate: toDate.value
+        toDate: toDate.value,
+        stallId: selectedStall.value?.id  
       }
     });
 
@@ -183,6 +251,23 @@ const fetchPastWeek = async () => {
   }
 
 }
+const applyCurrentFilter = async () => {
+  if (selectedFilter.value === 'all') {
+    await fetchEntries()
+  } else if (selectedFilter.value === 'today') {
+    await fetchToday()
+  } else if (selectedFilter.value === 'week') {
+    await fetchPastWeek()
+  } else if (selectedFilter.value === 'month') {
+    await fetchPastMonth()
+  }
+}
+
+watch(selectedStall, async (newStall) => {
+  if (!newStall) return
+  await applyCurrentFilter()
+})
+
 
 
 const fetchToday = async () => {
@@ -192,6 +277,7 @@ const fetchToday = async () => {
       params: {
         fromDate: toDate.value,
         toDate: toDate.value,
+        stallId: selectedStall.value?.id  
       }
     });
 
@@ -214,7 +300,8 @@ const fetchPastMonth = async () => {
     const res = await axios.get('http://localhost:3000/api/getAllEntries', {
       params: {
         fromDate: fromAMonthAgoDate.value,
-        toDate: toDate.value
+        toDate: toDate.value,
+        stallId: selectedStall.value?.id  
       }
     });
 
@@ -235,8 +322,11 @@ const fetchPastMonth = async () => {
 const fetchEntries = async () => {
   loading.value = true
   try {
-    const res = await axios.get('http://localhost:3000/api/getAllEntries')
-
+    const res = await axios.get('http://localhost:3000/api/getAllEntries', {
+      params: {
+        stallId: selectedStall.value?.id
+      }
+    })
     const data = Array.isArray(res.data) ? res.data : []
 
     // reverse order (latest first)
@@ -304,4 +394,12 @@ onMounted(async () => {
   border: 1px solid #ccc;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
+.food-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
 </style>

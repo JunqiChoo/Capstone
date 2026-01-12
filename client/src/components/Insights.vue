@@ -49,7 +49,7 @@
         <div class="card bg-light mb-3">
           <div class="card-body text-center">
             <h5 class="card-title">Total Waste for Selected Dates</h5>
-            <p class="card-text fw-bold text-dark display-6">  {{ totalWasteKgSelected }} Kg</p>
+            <p class="card-text fw-bold text-dark display-6"> {{ totalWasteKgSelected }} Kg</p>
           </div>
         </div>
       </div>
@@ -96,25 +96,24 @@
 
 
       <div class="col-4">
-  <div class="card bg-light mb-3 large-card">
-    <div class="card-body text-center">
-      <h3>Next Week's Estimate</h3>
+        <div class="card bg-light mb-3 large-card">
+          <div class="card-body text-center">
+            <h3>Next Week's Estimate</h3>
 
-      <p v-if="nextWeekPrediction !== null"
-         class="fw-bold display-3 text-primary">
-        {{ nextWeekPrediction }} kg
-      </p>
+            <p v-if="nextWeekPrediction !== null" class="fw-bold display-3 text-primary">
+              {{ nextWeekPrediction }} kg
+            </p>
 
-      <p v-else class="text-muted">
-        Insufficient data
-      </p>
+            <p v-else class="text-muted">
+              Insufficient data
+            </p>
 
-      <small class="text-muted">
-        ML-based linear regression forecast
-      </small>
-    </div>
-  </div>
-</div>
+            <small class="text-muted">
+              ML-based linear regression forecast
+            </small>
+          </div>
+        </div>
+      </div>
 
     </div>
 
@@ -139,15 +138,12 @@
 
 
 
-            <div
-  class="alert alert-warning d-flex align-items-center justify-content-center mb-0 attention-pulse"
-  role="alert"
-  style="font-size: 1.05rem;"
->
-  <i class="bi bi-exclamation-circle-fill me-2"></i>
- <span v-html="actionableInsight"></span>
+            <div class="alert alert-warning d-flex align-items-center justify-content-center mb-0 attention-pulse"
+              role="alert" style="font-size: 1.05rem;">
+              <i class="bi bi-exclamation-circle-fill me-2"></i>
+              <span v-html="actionableInsight"></span>
 
-</div>
+            </div>
 
           </div>
         </div>
@@ -584,10 +580,6 @@ const fetchDataForCSV = async () => {
     console.error(err)
   }
 }
-
-
-
-
 
 const btnClickBack = () => {
   router.push('/DashBoard')
