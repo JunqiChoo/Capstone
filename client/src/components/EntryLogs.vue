@@ -3,37 +3,77 @@
   <div class="container">
 
     <div class="row">
-      <div class="col-4 mt-5">
+      <div class="col-4 mt-4">
 
-<!-- <h2>{{ selectedStall?.name || 'Select Stall' }}</h2> -->
+        <!-- <h2>{{ selectedStall?.name || 'Select Stall' }}</h2> -->
 
-
+        <div class="mt-3">
+          <img src="@/assets/stallgen.png" class="food-image mb-3" alt="Food waste image" />
+        </div>
 
         <div class="dropdown w-100">
-<button
-  class="btn btn-outline-secondary dropdown-toggle w-100 text-start"
-  data-bs-toggle="dropdown"
->
-  {{ selectedStall?.name || 'Select Stall' }}
-</button>
+          <button class="btn btn-outline-primary dropdown-toggle w-100 text-start fw-bold py-2"
+            data-bs-toggle="dropdown">
+            {{ selectedStall?.name || 'Select Stall' }}
+          </button>
 
-  <ul class="dropdown-menu w-100">
-  <li v-for="stall in stalls" :key="stall.id">
-    <a
-      class="dropdown-item"
-      href="#"
-      @click.prevent="selectStall(stall)"
-    >
-      {{ stall.name }}
-    </a>
-  </li>
-</ul>
+          <ul class="dropdown-menu w-100">
+            <li v-for="stall in stalls" :key="stall.id">
+              <a class="dropdown-item fw-semibold" href="#" @click.prevent="selectStall(stall)">
+                {{ stall.name }}
+              </a>
+            </li>
+          </ul>
+        </div>
 
 
-</div>
+        <div class="card-entry-log bg-light mb-3 mt-2 p-2">
+          <div class="card-body p-2">
+            <h5>Stall ID : {{ selectedStall?.id }}</h5>
+            <br></br>
+            <div v-if="selectedStall">
+              <p><strong>Cuisine:</strong> {{ selectedStall?.cuisine }}</p>
+              <p><strong>Contact:</strong> {{ selectedStall?.contact }}</p>
+              <p><strong>Email:</strong> {{ selectedStall?.email }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-entry bg-light mb-3 mt-2 p-2">
+          <div class="card-body text-center m-2">
+            <div>
+              <h5 class="mb-0">
+                WASTE :
+                <strong>
+                  {{ (wasteBreakdown.total / 1000).toFixed(2) }} kg
+                </strong>
 
-  
-        <img src="@/assets/stallImage.jpg" class="food-image mb-3" alt="Food waste image" />
+              </h5>
+            </div>
+            <div class="row text-center mb-3 mt-4">
+              <div class="col-4">
+                <div class="p-2 text-white fw-bold rounded bg-secondary">
+                  MEAT<br>{{ wasteBreakdown.meatPct }}%
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="p-2 text-white fw-bold rounded bg-secondary">
+                  VEGE<br>{{ wasteBreakdown.vegPct }}%
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="p-2 text-white fw-bold rounded bg-secondary">
+                  CARBS<br>{{ wasteBreakdown.carbsPct }}%
+                </div>
+              </div>
+            </div>
+
+            <!-- Waste -->
+
+          </div>
+        </div>
+
+
+
       </div>
       <div class="col-8">
 
@@ -110,7 +150,7 @@
                   </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 text-end">
                   <button type="button" class="btn btn-secondary" @click="btnClickBack">Back</button>
                 </div>
               </div>
@@ -127,17 +167,13 @@
 </template>
 
 <script setup>
-import { onMounted, ref ,watch} from 'vue'
+import { onMounted, ref, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 // import { useToast } from 'vue-toastification'
 // const toast = useToast()
 
 const router = useRouter()
-
-import foodImg from '@/assets/stallImage.jpg'
-
-
 const Entries = ref([])
 const selectedFilter = ref('all') // 'all' | 'week' | 'month'
 const loading = ref(false)
@@ -147,22 +183,77 @@ const fromAWeekAgoDate = ref('')
 const toDate = ref('')
 const fromAMonthAgoDate = ref('')
 const stalls = [
-  { id: 1, name: 'Mixed Vegetable Rice Stall' },
-  { id: 2, name: 'Western Grill Stall' },
-  { id: 3, name: 'Chicken Rice Stall' },
-  { id: 4, name: 'Mini Wok Stall' }
+  {
+    id: 1,
+    name: 'Mixed Vegetable Rice Stall',
+    cuisine: 'Chinese',
+    email: 'johndoe@gmail.com',
+    contact: '9123 4567'
+  },
+  {
+    id: 2,
+    name: 'Western Grill Stall',
+    cuisine: 'Western',
+    email: 'westernwednesday@gmail.com',
+    contact: '9234 5678'
+  },
+  {
+    id: 3,
+    name: 'Chicken Rice Stall',
+    cuisine: 'Chinese',
+    email: 'mrchicken@gmail.com',
+    contact: '9345 6789'
+  },
+  {
+    id: 4,
+    name: 'Mini Wok Stall',
+    cuisine: 'Chinese (Zi Char)',
+    email: 'miniwok@email.com',
+    contact: '9456 7890'
+  }
 ]
 
-const selectedStall = ref(stalls[0])
+const wasteBreakdown = computed(() => {
+  let meat = 0
+  let veg = 0
+  let carbs = 0
 
+  if (!Array.isArray(Entries.value)) {
+    return {
+      meatPct: 0,
+      vegPct: 0,
+      carbsPct: 0,
+      total: 0
+    }
+  }
+
+  Entries.value.forEach(entry => {
+    meat += Number(entry.meatWeight) || 0
+    veg += Number(entry.vegWeight) || 0
+    carbs += Number(entry.carbWeight) || 0
+  })
+
+  const total = meat + veg + carbs
+
+  return {
+    meat,
+    veg,
+    carbs,
+    total,
+    meatPct: total ? Math.round((meat / total) * 100) : 0,
+    vegPct: total ? Math.round((veg / total) * 100) : 0,
+    carbsPct: total ? Math.round((carbs / total) * 100) : 0
+  }
+})
+
+
+
+const selectedStall = ref(stalls[0])
 
 function selectStall(stall) {
   selectedStall.value = stall
   console.log('Selected stall ID:', stall.id)
 }
-
-
-
 
 const btnClickBack = () => {
   router.push('/DashBoard')
@@ -235,7 +326,7 @@ const fetchPastWeek = async () => {
       params: {
         fromDate: fromAWeekAgoDate.value,
         toDate: toDate.value,
-        stallId: selectedStall.value?.id  
+        stallId: selectedStall.value?.id
       }
     });
 
@@ -277,7 +368,7 @@ const fetchToday = async () => {
       params: {
         fromDate: toDate.value,
         toDate: toDate.value,
-        stallId: selectedStall.value?.id  
+        stallId: selectedStall.value?.id
       }
     });
 
@@ -301,7 +392,7 @@ const fetchPastMonth = async () => {
       params: {
         fromDate: fromAMonthAgoDate.value,
         toDate: toDate.value,
-        stallId: selectedStall.value?.id  
+        stallId: selectedStall.value?.id
       }
     });
 
@@ -402,4 +493,13 @@ onMounted(async () => {
   border-radius: 4px;
 }
 
+.card-entry-log {
+  height: 200px;
+  border-radius: 4px;
+}
+
+.card-entry {
+  height: 150px;
+  border-radius: 4px;
+}
 </style>
