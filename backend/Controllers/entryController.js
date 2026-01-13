@@ -129,17 +129,13 @@ const exportEntriesExcel = async (req, res) => {
       topContributor
     } = req.query;
 
-
-    // 🔑 FIX 1: Proper date range
+    // ===== Date range =====
     const startDate = new Date(from);
     const endDate = new Date(to);
-    endDate.setHours(23, 59, 59, 999); // ✅ include full day
+    endDate.setHours(23, 59, 59, 999);
 
     const entries = await Entry.find({
-      timestamp: {
-        $gte: startDate,
-        $lte: endDate,
-      },
+      timestamp: { $gte: startDate, $lte: endDate }
     }).lean();
 
     if (!entries.length) {
@@ -148,92 +144,121 @@ const exportEntriesExcel = async (req, res) => {
 
     const workbook = new ExcelJS.Workbook();
 
-    // ==========================
-    // Sheet 1: Raw Entries
-    // ==========================
-    const entrySheet = workbook.addWorksheet("Raw_Entries");
-
-    entrySheet.columns = [
-      { header: "Ingest ID", key: "ingest_id" },
-      { header: "Meat (g)", key: "meatWeight" },
-      { header: "Veg (g)", key: "vegWeight" },
-      { header: "Carbs (g)", key: "carbWeight" },
-      { header: "Total (g)", key: "totalWeight" },
-      { header: "Device ID", key: "deviceId" },
-      { header: "Timestamp", key: "timestamp" },
-    ];
-
-    entries.forEach(entry => {
-      entrySheet.addRow(entry);
+    // =====================================================
+    // GROUP ENTRIES BY STALL
+    // =====================================================
+    const stalls = {};
+    entries.forEach(e => {
+      const stall = e.stallId ?? "Unknown";
+      if (!stalls[stall]) stalls[stall] = [];
+      stalls[stall].push(e);
     });
 
-    // ==========================
-    // Sheet 2: Dashboard Insights
-    // ==========================
+    // =====================================================
+    // CREATE ONE SHEET PER STALL
+    // =====================================================
+    Object.keys(stalls).forEach(stallId => {
+      const sheet = workbook.addWorksheet(`Stall_${stallId}`);
+
+      sheet.columns = [
+        { header: "Ingest ID", key: "ingest_id" },
+        { header: "Meat (g)", key: "meatWeight" },
+        { header: "Veg (g)", key: "vegWeight" },
+        { header: "Carbs (g)", key: "carbWeight" },
+        { header: "Total (g)", key: "totalWeight" },
+        { header: "Device ID", key: "deviceId" },
+        { header: "Timestamp", key: "timestamp" }
+      ];
+
+      stalls[stallId].forEach(entry => {
+        sheet.addRow(entry);
+      });
+
+      sheet.getRow(1).font = { bold: true };
+    });
+
+    // =====================================================
+    // DASHBOARD INSIGHTS SHEET
+    // =====================================================
     const insightSheet = workbook.addWorksheet("Dashboard_Insights");
 
-    const totalWaste = entries.reduce((s, e) => s + e.totalWeight, 0);
-    const totalMeat = entries.reduce((s, e) => s + e.meatWeight, 0);
-    const totalVeg = entries.reduce((s, e) => s + e.vegWeight, 0);
-    const totalCarbs = entries.reduce((s, e) => s + e.carbWeight, 0);
+    const overall = {
+      meat: 0,
+      veg: 0,
+      carbs: 0,
+      total: 0
+    };
 
+    const perStallTotals = {};
+
+    entries.forEach(e => {
+      overall.meat += e.meatWeight;
+      overall.veg += e.vegWeight;
+      overall.carbs += e.carbWeight;
+      overall.total += e.totalWeight;
+
+      const stall = e.stallId ?? "Unknown";
+      if (!perStallTotals[stall]) {
+        perStallTotals[stall] = { meat: 0, veg: 0, carbs: 0, total: 0 };
+      }
+
+      perStallTotals[stall].meat += e.meatWeight;
+      perStallTotals[stall].veg += e.vegWeight;
+      perStallTotals[stall].carbs += e.carbWeight;
+      perStallTotals[stall].total += e.totalWeight;
+    });
+
+    // ===== Write dashboard rows =====
     insightSheet.addRows([
-  // ===== Header =====
-  ["Metric", "Value"],
-  [],
+      ["Metric", "Value"],
+      [],
+      ["From Date", from],
+      ["To Date", to],
+      [],
+      ["Total Entries", entries.length],
+      [],
+      ["Overall Meat Waste (g)", overall.meat],
+      ["Overall Vegetable Waste (g)", overall.veg],
+      ["Overall Carb Waste (g)", overall.carbs],
+      ["Overall Total Waste (g)", overall.total],
+      [],
+      ["Weekly Trend", weeklyTrend || "N/A"],
+      ["Total Waste (kg)", totalWasteKg || "N/A"],
+      ["Today's Waste (kg)", todayWasteKg || "N/A"],
+      ["Next Week Prediction (kg)", nextWeekPrediction || "N/A"],
+      ["Carbon Analytics", carbonAnalytics || "N/A"],
+      ["Top Waste Contributor", topContributor || "N/A"],
+      []
+    ]);
 
-  // ===== Summary =====
-  ["Entries Count", entries.length],
-  [],
-  
-  // ===== Date Range =====
-  ["From Date", from],
-  ["To Date", to],
-  [],
+    // ===== Per-stall breakdown =====
+    insightSheet.addRow(["Per-Stall Breakdown"]);
+    insightSheet.addRow(["Stall", "Meat (g)", "Veg (g)", "Carbs (g)", "Total (g)"]);
 
-  // ===== Raw Aggregates =====
-  ["Total Waste (g)", totalWaste],
-  ["Total Meat Waste (g)", totalMeat],
-  ["Total Vegetable Waste (g)", totalVeg],
-  ["Total Carb Waste (g)", totalCarbs],
-  [],
+    Object.keys(perStallTotals).forEach(stallId => {
+      const s = perStallTotals[stallId];
+      insightSheet.addRow([
+        `Stall ${stallId}`,
+        s.meat,
+        s.veg,
+        s.carbs,
+        s.total
+      ]);
+    });
 
-  // ===== Dashboard Insights =====
-  ["Weekly Trend", weeklyTrend || "N/A"],
-  ["Total Waste (kg)", totalWasteKg || "N/A"],
-  ["Today's Waste (kg)", todayWasteKg || "N/A"],
-  ["Next Week Prediction (kg)", nextWeekPrediction || "N/A"],
-  ["Carbon Analytics", carbonAnalytics || "N/A"],
-  ["Top Waste Contributor", topContributor || "N/A"]
-]);
+    insightSheet.getRow(1).font = { bold: true };
+    insightSheet.getRow(insightSheet.lastRow.number - Object.keys(perStallTotals).length - 1).font = { bold: true };
 
-
-insightSheet.eachRow((row) => {
-  const text = row.getCell(1).value;
-  if (
-    text === "Metric" ||
-    text === "Summary" ||
-    text === "Raw Aggregates" ||
-    text === "Dashboard Insights"
-  ) {
-    row.font = { bold: true };
-  }
-});
-
-
+    // =====================================================
+    // SEND FILE
+    // =====================================================
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
-    const safeFrom = from.replace(/[:]/g, "-");
-    const safeTo = to.replace(/[:]/g, "-");
 
-    const filename = `food_waste_report_${safeFrom}_to_${safeTo}.xlsx`;
-
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="${filename}"`
-    );
+    const filename = `food_waste_report_${from}_to_${to}.xlsx`;
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
 
     await workbook.xlsx.write(res);
     res.end();
@@ -243,5 +268,6 @@ insightSheet.eachRow((row) => {
     res.status(500).json({ message: "Excel export failed" });
   }
 };
+
 
 module.exports = {createEntry,getEntry,deleteEntry,getAllEntries,exportEntriesExcel}
